@@ -8,8 +8,10 @@ import org.hibernate.query.Query;
 import org.pras.config.HibernateUtil;
 import org.pras.models.BorrowRecord;
 import org.pras.utils.DateUtilNew;
+import org.springframework.stereotype.Service;
 
 
+@Service
 public class ReportService {
 
 

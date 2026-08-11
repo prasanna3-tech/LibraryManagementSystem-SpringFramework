@@ -7,7 +7,9 @@ import org.pras.config.HibernateUtil;
 import org.pras.models.Book;
 import org.pras.models.BorrowRecord;
 import java.util.List;
+import org.springframework.stereotype.Service;
 
+@Service
 public class BookService {
 
     public BookService() {

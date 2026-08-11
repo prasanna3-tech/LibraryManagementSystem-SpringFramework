@@ -7,9 +7,12 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.pras.config.HibernateUtil;
 import org.pras.models.Librarian;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
+@Service
 public class LibrarianService {
 
     public LibrarianService() {

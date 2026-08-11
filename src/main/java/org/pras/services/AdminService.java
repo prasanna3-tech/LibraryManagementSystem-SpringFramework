@@ -7,9 +7,11 @@ import org.pras.config.HibernateUtil;
 import org.pras.models.Admin;
 import org.pras.models.Student;
 import org.pras.models.SystemSettings;
-
+import org.springframework.stereotype.Service;
 import java.util.List;
 
+
+@Service
 public class AdminService {
 
     public AdminService( ) {

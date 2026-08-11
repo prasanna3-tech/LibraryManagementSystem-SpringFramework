@@ -8,7 +8,10 @@ import org.pras.models.Student;
 import java.util.List;
 
 import org.pras.models.*;
+import org.springframework.stereotype.Service;
 
+
+@Service
 public class StudentService {
 
 
