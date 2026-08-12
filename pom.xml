@@ -8,6 +8,9 @@
     <artifactId>LibraryManagementSystem-SpringFramework</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <packaging>war</packaging>
+
+
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
@@ -16,6 +19,7 @@
         <spring-data-jpa.version>4.1.0</spring-data-jpa.version>
         <hibernate.version>7.4.4.Final</hibernate.version>
         <spring-data-jpa.version>4.1.0</spring-data-jpa.version>
+
     </properties>
 
     <dependencies>
@@ -66,6 +70,32 @@
             <artifactId>mysql-connector-j</artifactId>
             <version>9.4.0</version>
         </dependency>
+
+        <!-- Servlet API for compile time,and also it is provided by tomcat at runtime -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+
+                <configuration>
+                    <webappDirectory>
+                        C:\apache-tomcat-11.0.24\webapps\LibraryManagementSystem-SpringFramework
+                    </webappDirectory>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>
