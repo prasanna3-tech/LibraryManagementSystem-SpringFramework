@@ -1,218 +1,103 @@
 package org.pras.services;
-
-import java.util.ArrayList;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.pras.config.HibernateUtil;
+import org.pras.exceptions.BookCurrentlyBorrowedException;
+import org.pras.exceptions.BookNotFoundException;
+import org.pras.repositories.BorrowRecordRepository;
+import org.pras.results.book.BookOperationResult;
+import org.springframework.transaction.annotation.Transactional;
 import org.pras.models.Book;
 import org.pras.models.BorrowRecord;
 import java.util.List;
+import java.util.Optional;
+import org.pras.repositories.BookRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BookService {
 
-    public BookService() {
-        
+    private final BookRepository bookRepository;
+    private final BorrowRecordRepository borrowRecordRepository;
+
+    public BookService(
+            BookRepository bookRepository,
+            BorrowRecordRepository borrowRecordRepository) {
+
+        this.bookRepository = bookRepository;
+        this.borrowRecordRepository = borrowRecordRepository;
     }
 
-    public void addBook(Book newBook) {
+    @Transactional
+    public BookOperationResult addBook(Book newBook) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
+        Optional<Book> existingBook =
+                bookRepository.findByIsbn(newBook.getIsbn());
 
-        try {
+        if (existingBook.isPresent()) {
 
-            String jpql = """
-                SELECT b
-                FROM Book b
-                WHERE b.isbn = :isbn
-                """;
+            Book book = existingBook.get();
 
-            Book existingBook = session.createQuery(jpql, Book.class)
-                    .setParameter("isbn", newBook.getIsbn())
-                    .uniqueResult();
+            book.setQuantity(
+                    book.getQuantity() + newBook.getQuantity()
+            );
 
-            if (existingBook != null) {
+            return new BookOperationResult(book, false);
 
-                existingBook.setQuantity(
-                        existingBook.getQuantity() + newBook.getQuantity()
-                );
+        } else {
 
-                System.out.println("Book already exists. Quantity updated successfully");
+            bookRepository.save(newBook);
 
-            } else {
+            return new BookOperationResult(newBook, true);
 
-                session.persist(newBook);
-
-                System.out.println("Book added successfully");
-            }
-
-            transaction.commit();
-
-        } catch (Exception e) {
-
-            transaction.rollback();
-            e.printStackTrace();
-
-        } finally {
-
-            session.close();
         }
     }
 
     public Book searchBookById(int bookId) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-
-        try {
-
-            return session.find(Book.class, bookId);
-
-        } finally {
-
-            session.close();
-        }
+        return bookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException(bookId));
     }
 
-    public ArrayList<Book> searchBooksByKeyword(String keyword) {
-
-        Session session = HibernateUtil.getSessionFactory().openSession();
-
-        try {
-
-            String jpql = """
-                SELECT b
-                FROM Book b
-                WHERE b.title LIKE :keyword
-                OR b.author LIKE :keyword
-                OR b.category LIKE :keyword
-                """;
-
-            return new ArrayList<>(
-                    session.createQuery(jpql, Book.class)
-                            .setParameter("keyword", "%" + keyword + "%")
-                            .getResultList()
-            );
-
-        } finally {
-
-            session.close();
-        }
+    public List<Book> searchBooksByKeyword(String keyword) {
+        return bookRepository.searchByKeyword(keyword);
     }
 
-    public void removeBook(int bookId) {
+    @Transactional
+    public Book removeBook(int bookId) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() ->
+                        new BookNotFoundException(bookId));
 
-        try {
+        Optional<BorrowRecord> borrowRecord =
+                borrowRecordRepository
+                        .findByBookBookIdAndReturnedFalse(bookId);
 
-            Book book = session.find(Book.class, bookId);
-
-            if (book == null) {
-                System.out.println("Book not found.");
-                return;
-            }
-
-            String jpql = """
-                SELECT br
-                FROM BorrowRecord br
-                WHERE br.book.bookId = :bookId
-                AND br.returned = false
-                """;
-
-            BorrowRecord borrowRecord = session.createQuery(jpql, BorrowRecord.class)
-                    .setParameter("bookId", bookId)
-                    .setMaxResults(1)
-                    .uniqueResult();
-
-            if (borrowRecord != null) {
-
-                System.out.println("Cannot remove the book because it is currently borrowed.");
-
-            } else {
-
-                session.remove(book);
-                System.out.println("Book removed successfully.");
-            }
-
-            transaction.commit();
-
-        } catch (Exception e) {
-
-            transaction.rollback();
-            e.printStackTrace();
-
-        } finally {
-
-            session.close();
+        if (borrowRecord.isPresent()) {
+            throw new BookCurrentlyBorrowedException(bookId);
         }
+
+        bookRepository.delete(book);
+
+        return book;
     }
 
-    public void updateBook(Book updatedBook) {
+    @Transactional
+    public Book updateBook(Book updatedBook) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
 
-        try {
+        Book book = bookRepository.findById(updatedBook.getBookId())
+                .orElseThrow(() ->
+                        new BookNotFoundException(updatedBook.getBookId()));
 
-            Book existingBook = session.find(Book.class, updatedBook.getBookId());
+        book.setTitle(updatedBook.getTitle());
+        book.setAuthor(updatedBook.getAuthor());
+        book.setIsbn(updatedBook.getIsbn());
+        book.setCategory(updatedBook.getCategory());
+        book.setQuantity(updatedBook.getQuantity());
 
-            if (existingBook == null) {
-                System.out.println("Book not found");
-                return;
-            }
-
-            existingBook.setTitle(updatedBook.getTitle());
-            existingBook.setAuthor(updatedBook.getAuthor());
-            existingBook.setIsbn(updatedBook.getIsbn());
-            existingBook.setCategory(updatedBook.getCategory());
-            existingBook.setQuantity(updatedBook.getQuantity());
-
-            transaction.commit();
-
-            System.out.println("Book updated successfully");
-
-        } catch (Exception e) {
-
-            transaction.rollback();
-            e.printStackTrace();
-
-        } finally {
-
-            session.close();
-        }
+        return book;
     }
 
-    public void displayAllBooks() {
-
-        Session session = HibernateUtil.getSessionFactory().openSession();
-
-        try {
-
-            String jpql = """
-                SELECT b
-                FROM Book b
-                """;
-
-            List<Book> books = session.createQuery(jpql, Book.class)
-                    .getResultList();
-
-            if (books.isEmpty()) {
-                System.out.println("No books found");
-                return;
-            }
-
-            for (Book book : books) {
-                book.displayBookDetails();
-                System.out.println();
-            }
-
-        } finally {
-
-            session.close();
-        }
+    public List<Book> displayAllBooks() {
+        return bookRepository.findAll();
     }
-
 }

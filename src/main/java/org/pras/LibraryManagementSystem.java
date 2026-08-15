@@ -35,7 +35,7 @@ public class LibraryManagementSystem {
 
     public LibraryManagementSystem() {
 
-        bookService = new BookService();
+        //bookService = new BookService();
 
         studentService = new StudentService();
 
