@@ -92,11 +92,11 @@ public class StudentMenu {
                 }
 
                 case 2:
-                    borrowService.displayBorrowedBooks(student.getStudentId());
+                    //borrowService.displayBorrowedBooks(student.getStudentId());
                     break;
 
                 case 3:
-                    borrowService.displayDueDates(student.getStudentId());
+                   // borrowService.displayDueDates(student.getStudentId());
                     break;
 
                 case 4: {
@@ -114,7 +114,7 @@ public class StudentMenu {
 
                     }
 
-                    borrowService.displayOverdueBooks(student.getStudentId(), todayDate);
+                    //borrowService.displayOverdueBooks(student.getStudentId(), todayDate);
                     break;
                 }
 
@@ -206,7 +206,7 @@ public class StudentMenu {
                 }
 
                 case 7:
-                    borrowService.displayBorrowHistory(student.getStudentId());
+                    //borrowService.displayBorrowHistory(student.getStudentId());
                     break;
 
                 case 8:

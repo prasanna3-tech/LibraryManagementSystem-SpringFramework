@@ -1,4 +1,4 @@
-package org.pras.dto;
+package org.pras.dto.bookDtos;
 
 public class BookResponseDto {
     private int bookId;

@@ -1,6 +1,6 @@
 package org.pras.mappers;
 
-import org.pras.dto.BookRequestDto;
+import org.pras.dto.bookDtos.BookRequestDto;
 import org.pras.models.Book;
 import org.springframework.stereotype.Component;
 

@@ -451,7 +451,7 @@ switch(choice) {
 
 
 
-        borrowService.payFine(fineStudentId);
+       // borrowService.payFine(fineStudentId);
         break;
     }
 

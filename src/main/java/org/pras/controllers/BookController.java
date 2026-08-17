@@ -1,8 +1,8 @@
 package org.pras.controllers;
 
 import java.util.List;
-import org.pras.dto.BookRequestDto;
-import org.pras.dto.BookResponseDto;
+import org.pras.dto.bookDtos.BookRequestDto;
+import org.pras.dto.bookDtos.BookResponseDto;
 import org.pras.mappers.BookRequestMapper;
 import org.pras.mappers.BookResponseMapper;
 import org.pras.models.Book;
