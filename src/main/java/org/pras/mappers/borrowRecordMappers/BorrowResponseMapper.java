@@ -1,4 +1,4 @@
-package org.pras.mappers;
+package org.pras.mappers.borrowRecordMappers;
 
 import org.pras.dto.borrowDtos.BorrowResponseDto;
 import org.pras.models.BorrowRecord;

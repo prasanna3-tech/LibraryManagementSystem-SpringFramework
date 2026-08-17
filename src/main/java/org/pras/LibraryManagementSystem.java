@@ -37,7 +37,7 @@ public class LibraryManagementSystem {
 
         //bookService = new BookService();
 
-        studentService = new StudentService();
+       // studentService = new StudentService();
 
         librarianService = new LibrarianService();
 
@@ -158,7 +158,7 @@ public class LibraryManagementSystem {
     if(student != null) {
         System.out.println("Login Successfull");
         System.out.println();
-        StudentService.displayReservationNotifications(student.getStudentId());
+        //StudentService.displayReservationNotifications(student.getStudentId());
         studentMenu.showMenu(student);
     }
     else {

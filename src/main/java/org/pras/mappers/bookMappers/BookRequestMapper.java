@@ -1,4 +1,4 @@
-package org.pras.mappers;
+package org.pras.mappers.bookMappers;
 
 import org.pras.dto.bookDtos.BookRequestDto;
 import org.pras.models.Book;

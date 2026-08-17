@@ -14,11 +14,11 @@ public class Reservation {
     @Column(name = "reservation_id")
     private int reservationId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 

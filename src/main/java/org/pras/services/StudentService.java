@@ -3,288 +3,158 @@ package org.pras.services;
 import org.hibernate.Transaction;
 import org.hibernate.Session;
 import org.pras.config.HibernateUtil;
+import org.pras.dto.studentDtos.ResetStudentPasswordRequestDto;
+import org.pras.dto.studentDtos.StudentRegistrationRequestDto;
+import org.pras.exceptions.*;
 import org.pras.models.Student;
 
 import java.util.List;
 
 import org.pras.models.*;
+import org.pras.repositories.BorrowRecordRepository;
+import org.pras.repositories.ReservationRepository;
+import org.pras.repositories.StudentRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
 public class StudentService {
 
+    private final StudentRepository studentRepository;
+    private final BorrowRecordRepository borrowRecordRepository;
+    private final ReservationRepository reservationRepository;
 
+    public StudentService(
+            StudentRepository studentRepository,
+            BorrowRecordRepository borrowRecordRepository,ReservationRepository reservationRepository
+            ) {
 
-    public StudentService() {
-
+        this.studentRepository = studentRepository;
+        this.borrowRecordRepository = borrowRecordRepository;
+        this.reservationRepository=reservationRepository;
     }
 
-    public static void displayReservationNotifications(int studentId) {
+    public List<Reservation> getReservationNotifications(int studentId) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        studentRepository.findById(studentId)
+                .orElseThrow(() ->
+                        new StudentNotFoundException(studentId));
 
-        try {
-
-            String jpql = """
-                SELECT r
-                FROM Reservation r
-                WHERE r.student.studentId = :studentId
-                AND r.notified = true
-                """;
-
-            List<Reservation> reservations = session.createQuery(jpql, Reservation.class)
-                    .setParameter("studentId", studentId)
-                    .getResultList();
-
-            if (reservations.isEmpty()) {
-                return;
-            }
-
-            System.out.println("==================================");
-            System.out.println("RESERVATION NOTIFICATION");
-            System.out.println("==================================");
-
-            for (Reservation reservation : reservations) {
-
-                System.out.println("Book ID : "
-                        + reservation.getBook().getBookId());
-
-                System.out.println("Title : "
-                        + reservation.getBook().getTitle());
-
-                System.out.println("Reserved On : "
-                        + reservation.getReservationDate());
-
-                System.out.println();
-            }
-
-            System.out.println("Your reserved book(s) are now available.");
-            System.out.println("Please borrow them as soon as possible.");
-
-        } finally {
-
-            session.close();
-        }
+        return reservationRepository
+                .findByStudentStudentIdAndNotifiedTrue(studentId);
     }
 
-    public void registerStudent(Student student) {
+    @Transactional
+    public Student registerStudent(StudentRegistrationRequestDto request) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-
-        try {
-
-            Student existingStudent = session.find(Student.class, student.getStudentId());
-
-            if (existingStudent != null) {
-
-                System.out.println("Student ID already exists");
-
-            } else {
-
-                session.persist(student);
-
-                System.out.println("Student registered successfully");
-            }
-
-            transaction.commit();
-
-        } catch (Exception e) {
-
-            transaction.rollback();
-            e.printStackTrace();
-
-        } finally {
-
-            session.close();
+        if (studentRepository.existsById(request.getStudentId())) {
+            throw new StudentAlreadyExistsException(
+                    request.getStudentId()
+            );
         }
+        Student student = new Student();
+
+        student.setStudentId(request.getStudentId());
+        student.setName(request.getName());
+        student.setDepartment(request.getDepartment());
+        student.setPassword(request.getPassword());
+
+        return studentRepository.save(student);
     }
 
-    public Student loginStudent(int studentId, String password) {
+    public Student loginStudent(
+            int studentId,
+            String password) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-
-        try {
-
-            String jpql = """
-                SELECT s
-                FROM Student s
-                WHERE s.studentId = :studentId
-                AND s.password = :password
-                """;
-
-            return session.createQuery(jpql, Student.class)
-                    .setParameter("studentId", studentId)
-                    .setParameter("password", password)
-                    .uniqueResult();
-
-        } finally {
-
-            session.close();
-        }
+        return studentRepository
+                .findByStudentIdAndPassword(
+                        studentId,
+                        password
+                )
+                .orElseThrow(() ->
+                        new InvalidStudentCredentialsException());
     }
 
     public Student searchStudentById(int studentId) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-
-        try {
-
-            return session.find(Student.class, studentId);
-
-        } finally {
-
-            session.close();
-        }
+        return studentRepository.findById(studentId)
+                .orElseThrow(() ->
+                        new StudentNotFoundException(studentId));
     }
 
-    public void displayAllStudents() {
+    public List<Student> getAllStudents() {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-
-        try {
-
-            String jpql = """
-                SELECT s
-                FROM Student s
-                """;
-
-            List<Student> students = session.createQuery(jpql, Student.class)
-                    .getResultList();
-
-            if (students.isEmpty()) {
-
-                System.out.println("No students found");
-                return;
-            }
-
-            for (Student student : students) {
-
-                student.displayProfile();
-                System.out.println();
-            }
-
-        } finally {
-
-            session.close();
-        }
+        return studentRepository.findAll();
     }
 
-    public void removeStudent(int studentId) {
+    @Transactional
+    public Student removeStudent(int studentId) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
+        Student student =
+                studentRepository.findById(studentId)
+                        .orElseThrow(() ->
+                                new StudentNotFoundException(studentId));
 
-        try {
+        // Check borrowed books
 
-            Student student = session.find(Student.class, studentId);
+        boolean hasBorrowedBooks =
+                borrowRecordRepository
+                        .existsByStudentStudentIdAndReturnedFalse(
+                                studentId
+                        );
 
-            if (student == null) {
+        if (hasBorrowedBooks) {
 
-                System.out.println("Student not found.");
-                return;
-            }
-
-            String jpql = """
-                SELECT br
-                FROM BorrowRecord br
-                WHERE br.student.studentId = :studentId
-                AND br.returned = false
-                """;
-
-            BorrowRecord borrowRecord = session.createQuery(jpql, BorrowRecord.class)
-                    .setParameter("studentId", studentId)
-                    .setMaxResults(1)
-                    .uniqueResult();
-
-            if (borrowRecord != null) {
-
-                System.out.println("Cannot remove the student because they have borrowed book(s).");
-
-            } else {
-
-                session.remove(student);
-
-                System.out.println("Student removed successfully.");
-            }
-
-            transaction.commit();
-
-        } catch (Exception e) {
-
-            transaction.rollback();
-            e.printStackTrace();
-
-        } finally {
-
-            session.close();
+            throw new StudentHasBorrowedBooksException(studentId);
         }
+
+        // Check pending fine
+
+        double totalFine =
+                borrowRecordRepository
+                        .getTotalPendingFine(studentId);
+
+        if (totalFine > 0) {
+
+            throw new StudentHasPendingFineException(studentId);
+        }
+
+        // Remove student
+
+        studentRepository.delete(student);
+        return student;
     }
 
-    public void updateStudentDetails(int studentId,
-                                     String newName,
-                                     String newDepartment) {
+    @Transactional
+    public Student updateStudentDetails(
+            int studentId,
+            String newName,
+            String newDepartment) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
+        Student student =
+                studentRepository.findById(studentId)
+                        .orElseThrow(() ->
+                                new StudentNotFoundException(studentId));
 
-        try {
+        student.setName(newName);
+        student.setDepartment(newDepartment);
 
-            Student student = session.find(Student.class, studentId);
-
-            if (student == null) {
-                System.out.println("Student not found");
-                return;
-            }
-
-            student.setName(newName);
-            student.setDepartment(newDepartment);
-
-            transaction.commit();
-
-            System.out.println("Student details updated successfully");
-
-        } catch (Exception e) {
-
-            transaction.rollback();
-            e.printStackTrace();
-
-        } finally {
-
-            session.close();
-        }
+        return student;
     }
 
-    public void resetStudentPassword(int studentId, String newPassword) {
+    @Transactional
+    public Student resetStudentPassword(
+            int studentId,
+            String newPassword) {
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
+        Student student =
+                studentRepository.findById(studentId)
+                        .orElseThrow(() ->
+                                new StudentNotFoundException(studentId));
 
-        try {
+        student.setPassword(newPassword);
 
-            Student student = session.find(Student.class, studentId);
-
-            if (student == null) {
-
-                System.out.println("Student not found");
-                return;
-            }
-
-            student.setPassword(newPassword);
-
-            transaction.commit();
-
-            System.out.println("Student password reset successfully");
-
-        } catch (Exception e) {
-
-            transaction.rollback();
-            e.printStackTrace();
-
-        } finally {
-
-            session.close();
-        }
+        return student;
     }
 }

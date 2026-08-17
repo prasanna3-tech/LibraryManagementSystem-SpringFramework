@@ -257,7 +257,7 @@ switch(choice) {
                 password
         );
 
-        studentService.registerStudent(student);
+      //  studentService.registerStudent(student);
         break;
     }
 

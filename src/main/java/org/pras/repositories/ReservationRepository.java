@@ -3,6 +3,7 @@ package org.pras.repositories;
 import org.pras.models.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
@@ -12,5 +13,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     Optional<Reservation> findByStudentStudentIdAndBookBookId(
             int studentId,
             int bookId
+    );
+    List<Reservation> findByStudentStudentIdAndNotifiedTrue(
+            int studentId
     );
 }

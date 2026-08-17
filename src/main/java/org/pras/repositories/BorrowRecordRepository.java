@@ -26,6 +26,15 @@ public interface BorrowRecordRepository
     """)
     double getTotalUnpaidFine( @Param("studentId") int studentId);
 
+    @Query("""
+    SELECT COALESCE(SUM(br.fine), 0)
+    FROM BorrowRecord br
+    WHERE br.student.studentId = :studentId
+    AND br.returned = true
+    AND br.finePaid = false
+    """)
+    double getTotalPendingFine(@Param("studentId") int studentId);
+
     List<BorrowRecord> findByStudentStudentIdAndReturnedFalse(
             int studentId
     );
@@ -39,6 +48,9 @@ public interface BorrowRecordRepository
             int studentId
     );
     List<BorrowRecord> findByStudentStudentIdOrderByIssueDateDesc(
+            int studentId
+    );
+    boolean existsByStudentStudentIdAndReturnedFalse(
             int studentId
     );
 }

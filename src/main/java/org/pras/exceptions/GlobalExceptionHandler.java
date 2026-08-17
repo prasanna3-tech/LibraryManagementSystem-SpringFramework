@@ -136,4 +136,36 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(e.getMessage());
     }
+    @ExceptionHandler(StudentAlreadyExistsException.class)
+    public ResponseEntity<String> handleStudentAlreadyExists(
+            StudentAlreadyExistsException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(InvalidStudentCredentialsException.class)
+    public ResponseEntity<String> handleInvalidStudentCredentials(
+            InvalidStudentCredentialsException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(StudentHasBorrowedBooksException.class)
+    public ResponseEntity<String> handleStudentHasBorrowedBooks(
+            StudentHasBorrowedBooksException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(StudentHasPendingFineException.class)
+    public ResponseEntity<String> handleStudentHasPendingFine(
+            StudentHasPendingFineException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
 }

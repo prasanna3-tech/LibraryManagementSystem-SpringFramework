@@ -181,7 +181,7 @@ switch(choice) {
         break;
 
     case 5:
-        studentService.displayAllStudents();
+       // studentService.displayAllStudents();
         break;
 
     case 6: {
