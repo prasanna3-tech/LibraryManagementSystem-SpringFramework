@@ -39,7 +39,7 @@ public class LibraryManagementSystem {
 
        // studentService = new StudentService();
 
-        librarianService = new LibrarianService();
+       // librarianService = new LibrarianService();
 
         adminService = new AdminService();
 

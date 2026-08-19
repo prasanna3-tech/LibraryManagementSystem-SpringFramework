@@ -177,7 +177,7 @@ switch(choice) {
     }
 
     case 4:
-        librarianService.displayAllLibrarians();
+        //librarianService.displayAllLibrarians();
         break;
 
     case 5:
