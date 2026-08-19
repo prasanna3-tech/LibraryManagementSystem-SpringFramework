@@ -208,4 +208,28 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(e.getMessage());
     }
+    @ExceptionHandler(AdminUsernameAlreadyExistsException.class)
+    public ResponseEntity<String> handleAdminUsernameAlreadyExists(
+            AdminUsernameAlreadyExistsException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(InvalidAdminCredentialsException.class)
+    public ResponseEntity<String> handleInvalidAdminCredentials(
+            InvalidAdminCredentialsException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(AdminNotFoundException.class)
+    public ResponseEntity<String> handleAdminNotFound(
+            AdminNotFoundException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(e.getMessage());
+    }
 }

@@ -4,226 +4,80 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.pras.config.HibernateUtil;
+import org.pras.exceptions.AdminNotFoundException;
+import org.pras.exceptions.AdminUsernameAlreadyExistsException;
+import org.pras.exceptions.InvalidAdminCredentialsException;
+import org.pras.exceptions.SystemSettingsNotFoundException;
 import org.pras.models.Admin;
 import org.pras.models.Student;
 import org.pras.models.SystemSettings;
+import org.pras.repositories.AdminRepository;
+import org.pras.repositories.StudentRepository;
+import org.pras.repositories.SystemSettingsRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 
 @Service
 public class AdminService {
 
-    public AdminService( ) {
+    private final AdminRepository adminRepository;
+    private final SystemSettingsRepository systemSettingsRepository;
+
+    public AdminService(
+            AdminRepository adminRepository,
+            SystemSettingsRepository systemSettingsRepository) {
+
+        this.adminRepository = adminRepository;
+        this.systemSettingsRepository = systemSettingsRepository;
     }
 
-    public void addAdmin(Admin admin) {
+    @Transactional
+    public Admin addAdmin(Admin admin) {
 
-        Session session = HibernateUtil
-                .getSessionFactory()
-                .openSession();
+        if (adminRepository.existsByUsername(
+                admin.getUsername())) {
 
-        Transaction transaction = null;
-
-        try {
-
-            // Check Duplicate Username
-
-            String jpql = """
-                SELECT a
-                FROM Admin a
-                WHERE a.username = :username
-                """;
-
-            Query<Admin> query =
-                    session.createQuery(
-                            jpql,
-                            Admin.class
-                    );
-
-            query.setParameter(
-                    "username",
+            throw new AdminUsernameAlreadyExistsException(
                     admin.getUsername()
             );
-
-            Admin existingAdmin =
-                    query.uniqueResult();
-
-            if (existingAdmin != null) {
-
-                System.out.println("Username already exists");
-                return;
-
-            }
-
-            // Begin Transaction
-
-            transaction = session.beginTransaction();
-
-            // Save Admin
-
-            session.persist(admin);
-
-            transaction.commit();
-
-            System.out.println("Admin added successfully");
-
-        }
-        catch (Exception e) {
-
-            if (transaction != null) {
-
-                transaction.rollback();
-
-            }
-
-            e.printStackTrace();
-
-        }
-        finally {
-
-            session.close();
-
         }
 
+        return adminRepository.save(admin);
     }
 
-    public Admin loginAdmin(String username, String password) {
+    public Admin loginAdmin(
+            String username,
+            String password) {
 
-        Session session = HibernateUtil
-                .getSessionFactory()
-                .openSession();
-
-        try {
-
-            String jpql = """
-                SELECT a
-                FROM Admin a
-                WHERE a.username = :username
-                AND a.password = :password
-                """;
-
-            Query<Admin> query =
-                    session.createQuery(
-                            jpql,
-                            Admin.class
-                    );
-
-            query.setParameter("username", username);
-            query.setParameter("password", password);
-
-            return query.uniqueResult();
-
-        }
-        catch (Exception e) {
-
-            e.printStackTrace();
-            return null;
-
-        }
-        finally {
-
-            session.close();
-
-        }
-
+        return adminRepository
+                .findByUsernameAndPassword(
+                        username,
+                        password
+                )
+                .orElseThrow(
+                        InvalidAdminCredentialsException::new
+                );
     }
 
-    public void removeAdmin(int adminId) {
+    @Transactional
+    public Admin removeAdmin(int adminId) {
 
-        Session session = HibernateUtil
-                .getSessionFactory()
-                .openSession();
+        Admin admin =
+                adminRepository.findById(adminId)
+                        .orElseThrow(() ->
+                                new AdminNotFoundException(adminId));
 
-        Transaction transaction = null;
+        adminRepository.delete(admin);
 
-        try {
-
-            Admin admin =
-                    session.find(Admin.class, adminId);
-
-            if (admin == null) {
-
-                System.out.println("Admin not found");
-                return;
-
-            }
-
-            transaction = session.beginTransaction();
-
-            session.remove(admin);
-
-            transaction.commit();
-
-            System.out.println("Admin removed successfully");
-
-        }
-        catch (Exception e) {
-
-            if (transaction != null) {
-
-                transaction.rollback();
-
-            }
-
-            e.printStackTrace();
-
-        }
-        finally {
-
-            session.close();
-
-        }
-
+        return admin;
     }
-    public void displayAllAdmins() {
 
-        Session session = HibernateUtil
-                .getSessionFactory()
-                .openSession();
+    public List<Admin> getAllAdmins() {
 
-        try {
-
-            String jpql = """
-                SELECT a
-                FROM Admin a
-                """;
-
-            Query<Admin> query =
-                    session.createQuery(
-                            jpql,
-                            Admin.class
-                    );
-
-            List<Admin> admins =
-                    query.getResultList();
-
-            if (admins.isEmpty()) {
-
-                System.out.println("No admins found");
-                return;
-
-            }
-
-            for (Admin admin : admins) {
-
-                admin.displayAdminDetails();
-                System.out.println();
-
-            }
-
-        }
-        catch (Exception e) {
-
-            e.printStackTrace();
-
-        }
-        finally {
-
-            session.close();
-
-        }
-
+        return adminRepository.findAll();
     }
 
     public void resetStudentPassword(int studentId, String newPassword) {
@@ -274,57 +128,23 @@ public class AdminService {
 
     }
 
-    public void updateSystemSettings(double finePerDay,
-                                     int maxBooksAllowed,
-                                     int borrowDurationDays,
-                                     int maxRenewCount) {
+    @Transactional
+    public SystemSettings updateSystemSettings(
+            double finePerDay,
+            int maxBooksAllowed,
+            int borrowDurationDays,
+            int maxRenewCount) {
 
-        Session session = HibernateUtil
-                .getSessionFactory()
-                .openSession();
+        SystemSettings settings =
+                systemSettingsRepository.findById(1)
+                        .orElseThrow(
+                                SystemSettingsNotFoundException ::new);
 
-        Transaction transaction = null;
+        settings.setFinePerDay(finePerDay);
+        settings.setMaxBooksAllowed(maxBooksAllowed);
+        settings.setBorrowDurationDays(borrowDurationDays);
+        settings.setMaxRenewCount(maxRenewCount);
 
-        try {
-
-            SystemSettings settings =
-                    session.find(SystemSettings.class, 1);
-
-            if (settings == null) {
-
-                System.out.println("System settings not found");
-                return;
-
-            }
-
-            transaction = session.beginTransaction();
-
-            settings.setFinePerDay(finePerDay);
-            settings.setMaxBooksAllowed(maxBooksAllowed);
-            settings.setBorrowDurationDays(borrowDurationDays);
-            settings.setMaxRenewCount(maxRenewCount);
-
-            transaction.commit();
-
-            System.out.println("System settings updated successfully");
-
-        }
-        catch (Exception e) {
-
-            if (transaction != null) {
-
-                transaction.rollback();
-
-            }
-
-            e.printStackTrace();
-
-        }
-        finally {
-
-            session.close();
-
-        }
-
+        return settings;
     }
 }
