@@ -293,12 +293,12 @@ switch(choice) {
             }
         }
 
-        reportService.displayLibraryReport(todayDate);
+      //  reportService.displayLibraryReport(todayDate);
         break;
     }
 
     case 10:
-        reportService.displayAllBorrowRecords();
+       // reportService.displayAllBorrowRecords();
         break;
 
     case 11: {
@@ -323,7 +323,7 @@ switch(choice) {
             }
         }
 
-        reportService.searchBorrowRecordsByStudentId(searchStudentId);
+        //reportService.searchBorrowRecordsByStudentId(searchStudentId);
         break;
     }
 
@@ -349,7 +349,7 @@ switch(choice) {
             }
         }
 
-        reportService.searchBorrowRecordsByBookId(searchBookId);
+      //  reportService.searchBorrowRecordsByBookId(searchBookId);
         break;
     }
 
@@ -373,7 +373,7 @@ switch(choice) {
             }
         }
 
-        reportService.searchBorrowRecordsByStatus(returned);
+        //reportService.searchBorrowRecordsByStatus(returned);
         break;
     }
 

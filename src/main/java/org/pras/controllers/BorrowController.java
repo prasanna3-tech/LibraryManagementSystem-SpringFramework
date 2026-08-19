@@ -2,6 +2,7 @@ package org.pras.controllers;
 
 import org.pras.dto.borrowDtos.*;
 import org.pras.mappers.borrowRecordMappers.*;
+import org.pras.mappers.reportMappers.*;
 import org.pras.models.BorrowRecord;
 import org.pras.models.Reservation;
 import org.pras.services.BorrowService;
