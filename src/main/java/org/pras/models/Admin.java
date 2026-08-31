@@ -17,6 +17,9 @@ public class Admin {
     @Column(nullable = false, length = 255)
     private String password;
 
+    @Column(nullable = false, length = 20)
+    private String role;
+
     public Admin() {
 
     }
@@ -25,6 +28,15 @@ public class Admin {
         this.adminId = adminId;
         this.username = username;
         this.password = password;
+        this.role = "ADMIN";
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public int getAdminId() {

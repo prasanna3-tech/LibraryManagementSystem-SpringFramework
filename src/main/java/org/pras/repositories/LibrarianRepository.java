@@ -1,5 +1,6 @@
 package org.pras.repositories;
 
+import org.pras.models.Admin;
 import org.pras.models.Librarian;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -17,4 +18,6 @@ public interface LibrarianRepository
             String username,
             int librarianId
     );
+
+    Optional<Librarian> findByUsername(String username);
 }

@@ -24,6 +24,9 @@ public class Student {
     @Column(name = "fine_amount", nullable = false)
     private double fineAmount;
 
+    @Column(nullable = false, length = 20)
+    private String role;
+
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
     private List<BorrowRecord> borrowRecords = new ArrayList<>();
 
@@ -44,6 +47,15 @@ public class Student {
         this.department = department;
         this.password = password;
         this.fineAmount = 0;
+        this.role = "STUDENT";
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public int getStudentId() {
