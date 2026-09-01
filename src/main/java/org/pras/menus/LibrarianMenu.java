@@ -250,12 +250,12 @@ switch(choice) {
         System.out.print("Enter Password: ");
         String password = sc.nextLine();
 
-        Student student = new Student(
+       /* Student student = new Student(
                 studentId,
                 studentName,
                 department,
                 password
-        );
+        ); */
 
       //  studentService.registerStudent(student);
         break;

@@ -2,9 +2,9 @@ package org.pras.exceptions;
 
 public class StudentAlreadyExistsException extends RuntimeException {
 
-    public StudentAlreadyExistsException(int studentId) {
+    public StudentAlreadyExistsException(String userName) {
 
-        super("Student with ID " + studentId + " already exists");
+        super("Student with ID " + userName + " already exists");
 
     }
 }

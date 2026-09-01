@@ -2,7 +2,7 @@ package org.pras.dto.studentDtos;
 
 public class StudentRegistrationRequestDto {
 
-    private int studentId;
+    private String username;
     private String name;
     private String department;
     private String password;
@@ -10,13 +10,14 @@ public class StudentRegistrationRequestDto {
     public StudentRegistrationRequestDto() {
     }
 
-    public int getStudentId() {
-        return studentId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setStudentId(int studentId) {
-        this.studentId = studentId;
+    public void setUsername(String username) {
+        this.username = username;
     }
+
 
     public String getName() {
         return name;

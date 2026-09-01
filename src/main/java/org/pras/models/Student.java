@@ -9,11 +9,15 @@ import java.util.List;
 public class Student {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "student_id")
     private int studentId;
 
     @Column(nullable = false, length = 100)
     private String name;
+
+    @Column(nullable = false, unique = true, length = 50)
+    private String username;
 
     @Column(nullable = false, length = 50)
     private String department;
@@ -39,15 +43,25 @@ public class Student {
 
     public Student(int studentId,
                    String name,
+                   String username,
                    String department,
                    String password) {
 
         this.studentId = studentId;
         this.name = name;
+        this.username = username;
         this.department = department;
         this.password = password;
         this.fineAmount = 0;
         this.role = "STUDENT";
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getRole() {

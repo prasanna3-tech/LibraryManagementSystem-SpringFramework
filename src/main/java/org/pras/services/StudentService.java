@@ -7,6 +7,7 @@ import org.pras.dto.studentDtos.ResetStudentPasswordRequestDto;
 import org.pras.dto.studentDtos.StudentRegistrationRequestDto;
 import org.pras.exceptions.*;
 import org.pras.models.Student;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -24,15 +25,18 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final BorrowRecordRepository borrowRecordRepository;
     private final ReservationRepository reservationRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public StudentService(
             StudentRepository studentRepository,
-            BorrowRecordRepository borrowRecordRepository,ReservationRepository reservationRepository
+            BorrowRecordRepository borrowRecordRepository,ReservationRepository reservationRepository,
+            PasswordEncoder passwordEncoder
             ) {
 
         this.studentRepository = studentRepository;
         this.borrowRecordRepository = borrowRecordRepository;
         this.reservationRepository=reservationRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Reservation> getReservationNotifications(int studentId) {
@@ -48,18 +52,21 @@ public class StudentService {
     @Transactional
     public Student registerStudent(StudentRegistrationRequestDto request) {
 
-        if (studentRepository.existsById(request.getStudentId())) {
+        if (studentRepository.existsByUsername(request.getUsername())) {
             throw new StudentAlreadyExistsException(
-                    request.getStudentId()
+                    request.getUsername()
             );
         }
+
         Student student = new Student();
 
-        student.setStudentId(request.getStudentId());
+        student.setUsername(request.getUsername());
         student.setName(request.getName());
         student.setDepartment(request.getDepartment());
-        student.setPassword(request.getPassword());
-
+        student.setPassword(
+                passwordEncoder.encode(request.getPassword())
+        );
+        student.setRole("STUDENT");
         return studentRepository.save(student);
     }
 

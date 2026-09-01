@@ -20,25 +20,15 @@ public class StudentUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
 
-        int studentId;
-
-        try {
-            studentId = Integer.parseInt(username);
-        } catch (NumberFormatException e) {
-            throw new UsernameNotFoundException(
-                    "Invalid student ID: " + username
-            );
-        }
-
-        Student student = studentRepository.findById(studentId)
+        Student student = studentRepository.findByUsername(username)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
-                                "Student not found: " + studentId
+                                "Student not found: " + username
                         )
                 );
 
         return new LmsUserDetails(
-                String.valueOf(student.getStudentId()),
+                student.getUsername(),
                 student.getPassword(),
                 student.getRole()
         );

@@ -32,6 +32,8 @@ public class StudentController {
     public ResponseEntity<StudentResponseDto> registerStudent(
             @RequestBody StudentRegistrationRequestDto request) {
 
+        System.out.println(">>> STUDENT REGISTRATION ENDPOINT REACHED");
+
         Student savedStudent =
                 studentService.registerStudent(request);
 
@@ -40,6 +42,7 @@ public class StudentController {
 
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/login")
     public ResponseEntity<StudentResponseDto> loginStudent(
             @RequestBody StudentLoginRequestDto request) {
