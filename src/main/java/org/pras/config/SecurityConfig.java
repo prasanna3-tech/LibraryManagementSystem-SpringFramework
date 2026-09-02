@@ -1,5 +1,6 @@
 package org.pras.config;
 
+import org.pras.security.JwtAuthenticationFilter;
 import org.pras.security.LmsUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,10 +13,19 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter) {
+
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
@@ -23,9 +33,25 @@ public class SecurityConfig {
 
         return http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
                 )
+
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/students",
+                                "/students/login",
+                                "/librarians/login",
+                                "/admins/login",
+                                "/books",
+                                "/books/search",
+                                "/auth/login"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+
                 .build();
     }
     @Bean
