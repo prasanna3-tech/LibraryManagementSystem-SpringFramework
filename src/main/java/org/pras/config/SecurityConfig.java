@@ -4,6 +4,7 @@ import org.pras.security.JwtAuthenticationFilter;
 import org.pras.security.LmsUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,15 +42,34 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/students",
-                                "/students/login",
-                                "/librarians/login",
-                                "/admins/login",
-                                "/books",
-                                "/books/search",
                                 "/auth/login"
                         ).permitAll()
-                        .anyRequest().authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/students"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/books",
+                                "/books/*"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/books/add"
+                        ).hasAnyRole("LIBRARIAN", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/books/*"
+                        ).hasAnyRole("LIBRARIAN", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/books/*"
+                        ).hasAnyRole("LIBRARIAN", "ADMIN")
                 )
 
                 .build();
