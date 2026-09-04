@@ -9,6 +9,7 @@ import org.pras.models.BorrowRecordReport;
 import org.pras.models.LibraryReport;
 import org.pras.services.ReportService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,9 @@ public class ReportController {
                 borrowRecordResponseMapper;
     }
 
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LIBRARIAN')"
+    )
     @GetMapping("/library")
     public ResponseEntity<LibraryReportResponseDto> getLibraryReport(
             @RequestParam("todayDate") String todayDate) {
@@ -55,6 +59,10 @@ public class ReportController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LIBRARIAN')"
+    )
     @GetMapping("/borrow-records")
     public ResponseEntity<List<BorrowRecordResponseDto>> getAllBorrowRecords() {
 
@@ -68,6 +76,10 @@ public class ReportController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LIBRARIAN')"
+    )
     @GetMapping("/borrow-records/student/{studentId}")
     public ResponseEntity<List<BorrowRecordResponseDto>>
     getBorrowRecordsByStudentId(
@@ -85,6 +97,10 @@ public class ReportController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LIBRARIAN')"
+    )
     @GetMapping("/borrow-records/book/{bookId}")
     public ResponseEntity<List<BorrowRecordResponseDto>>
     getBorrowRecordsByBookId(
@@ -100,6 +116,10 @@ public class ReportController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LIBRARIAN')"
+    )
     @GetMapping("/borrow-records/status")
     public ResponseEntity<List<BorrowRecordResponseDto>>
     getBorrowRecordsByStatus(

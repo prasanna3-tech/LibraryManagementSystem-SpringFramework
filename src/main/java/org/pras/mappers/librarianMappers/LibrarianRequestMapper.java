@@ -24,6 +24,7 @@ public class LibrarianRequestMapper {
         librarian.setPassword(
                 passwordEncoder.encode(request.getPassword())
         );
+        librarian.setRole("LIBRARIAN");
 
         return librarian;
     }

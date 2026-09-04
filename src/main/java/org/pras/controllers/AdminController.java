@@ -8,6 +8,7 @@ import org.pras.models.Admin;
 import org.pras.models.SystemSettings;
 import org.pras.services.AdminService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -77,6 +78,9 @@ public class AdminController {
 
         return ResponseEntity.ok(response);
     }
+    @PreAuthorize(
+            "hasRole('ADMIN')"
+    )
     @PutMapping("/system-settings")
     public ResponseEntity<SystemSettingsResponseDto> updateSystemSettings(
             @Valid @RequestBody UpdateSystemSettingsRequestDto request) {

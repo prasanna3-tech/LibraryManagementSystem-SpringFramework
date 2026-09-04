@@ -11,6 +11,7 @@ import org.pras.exceptions.LibrarianNotFoundException;
 import org.pras.exceptions.LibrarianUsernameAlreadyExistsException;
 import org.pras.models.Librarian;
 import org.pras.repositories.LibrarianRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +22,14 @@ import java.util.List;
 public class LibrarianService {
 
     private final LibrarianRepository librarianRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public LibrarianService(
-            LibrarianRepository librarianRepository) {
+            LibrarianRepository librarianRepository,
+            PasswordEncoder passwordEncoder) {
 
         this.librarianRepository = librarianRepository;
+        this.passwordEncoder=passwordEncoder;
     }
 
     @Transactional
@@ -97,7 +101,9 @@ public class LibrarianService {
 
         librarian.setName(newName);
         librarian.setUsername(newUsername);
-        librarian.setPassword(newPassword);
+        String encodedPassword =
+                passwordEncoder.encode(newPassword);
+        librarian.setPassword(encodedPassword);
 
         return librarian;
     }

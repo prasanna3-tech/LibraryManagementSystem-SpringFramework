@@ -10,6 +10,7 @@ import org.pras.mappers.librarianMappers.LibrarianResponseMapper;
 import org.pras.models.Librarian;
 import org.pras.services.LibrarianService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -78,6 +79,10 @@ public class LibrarianController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasRole('ADMIN') or @librarianSecurity.isOwner(#p0)"
+    )
     @PutMapping("/{librarianId}")
     public ResponseEntity<LibrarianResponseDto> updateLibrarianDetails(
             @PathVariable("librarianId") int librarianId,

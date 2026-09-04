@@ -22,6 +22,7 @@ public class AdminRequestMapper {
         admin.setPassword(
                 passwordEncoder.encode(request.getPassword())
         );
+        admin.setRole("ADMIN");
 
         return admin;
     }

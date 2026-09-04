@@ -8,6 +8,7 @@ import org.pras.models.Reservation;
 import org.pras.services.BorrowService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
@@ -109,6 +110,10 @@ public class BorrowController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LIBRARIAN') or @studentSecurity.isOwner(#p0)"
+    )
     @GetMapping("/fine/{studentId}")
     public ResponseEntity<FineResponseDto> getTotalFine(
             @PathVariable("studentId") int studentId) {
@@ -142,6 +147,10 @@ public class BorrowController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LIBRARIAN') or @studentSecurity.isOwner(#p0)"
+    )
     @GetMapping("/student/{studentId}/borrowed-books")
     public ResponseEntity<List<BorrowedBookResponseDto>> getBorrowedBooks(
             @PathVariable("studentId") int studentId) {
@@ -156,6 +165,10 @@ public class BorrowController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LIBRARIAN') or @studentSecurity.isOwner(#p0)"
+    )
     @GetMapping("/student/{studentId}/due-dates")
     public ResponseEntity<List<DueDateResponseDto>> getDueDates(
             @PathVariable("studentId") int studentId) {
@@ -170,6 +183,10 @@ public class BorrowController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LIBRARIAN') or @studentSecurity.isOwner(#p0)"
+    )
     @GetMapping("/student/{studentId}/overdue-books")
     public ResponseEntity<List<OverdueBookResponseDto>> getOverdueBooks(
             @PathVariable("studentId") int studentId,
@@ -183,6 +200,10 @@ public class BorrowController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LIBRARIAN') or @studentSecurity.isOwner(#p0)"
+    )
     @GetMapping("/student/{studentId}/history")
     public ResponseEntity<List<BorrowHistoryResponseDto>> getBorrowHistory(
             @PathVariable("studentId") int studentId) {

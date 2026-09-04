@@ -79,7 +79,7 @@ public class BookController {
 
     @DeleteMapping("/{bookId}")
     public ResponseEntity<BookResponseDto> removeBook(
-            @PathVariable int bookId) {
+            @PathVariable("bookId") int bookId) {
 
         Book deletedBook = bookService.removeBook(bookId);
 

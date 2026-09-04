@@ -7,6 +7,7 @@ import org.pras.models.Reservation;
 import org.pras.models.Student;
 import org.pras.services.StudentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -58,6 +59,7 @@ public class StudentController {
 
         return ResponseEntity.ok(response);
     }
+
     @DeleteMapping("/{studentId}")
     public ResponseEntity<StudentResponseDto> removeStudent(
             @PathVariable("studentId") int studentId) {
@@ -72,6 +74,10 @@ public class StudentController {
 
         return ResponseEntity.ok(response);
     }
+
+   @PreAuthorize(
+            "hasRole('ADMIN') or @studentSecurity.isOwner(#p0)"
+    )
     @PutMapping("/{studentId}")
     public ResponseEntity<StudentResponseDto> updateStudentDetails(
             @PathVariable("studentId") int studentId,
@@ -91,6 +97,10 @@ public class StudentController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasRole('ADMIN') or @studentSecurity.isOwner(#p0)"
+    )
     @PutMapping("/{studentId}/password")
     public ResponseEntity<StudentResponseDto> resetStudentPassword(
             @PathVariable("studentId") int studentId,
@@ -109,6 +119,10 @@ public class StudentController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasRole('ADMIN') or @studentSecurity.isOwner(#p0)"
+    )
     @GetMapping("/{studentId}/reservation-notifications")
     public ResponseEntity<List<ReservationNotificationResponseDto>>
     getReservationNotifications(
@@ -124,6 +138,10 @@ public class StudentController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize(
+            "hasRole('ADMIN') or @studentSecurity.isOwner(#p0)"
+    )
     @GetMapping("/{studentId}")
     public ResponseEntity<StudentResponseDto> searchStudentById(
             @PathVariable("studentId") int studentId) {
@@ -136,6 +154,7 @@ public class StudentController {
 
         return ResponseEntity.ok(response);
     }
+
     @GetMapping
     public ResponseEntity<List<StudentResponseDto>> getAllStudents() {
 

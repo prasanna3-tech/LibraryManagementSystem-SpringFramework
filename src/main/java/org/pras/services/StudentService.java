@@ -160,7 +160,10 @@ public class StudentService {
                         .orElseThrow(() ->
                                 new StudentNotFoundException(studentId));
 
-        student.setPassword(newPassword);
+        String encodedPassword =
+                passwordEncoder.encode(newPassword);
+
+        student.setPassword(encodedPassword);
 
         return student;
     }
