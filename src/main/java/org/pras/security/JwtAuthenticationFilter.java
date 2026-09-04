@@ -9,6 +9,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 
 import java.io.IOException;
 
@@ -63,12 +67,57 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
 
-        } catch (Exception e) {
+        } catch (ExpiredJwtException e) {
 
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            sendErrorResponse(
+                    response,
+                    "JWT token has expired"
+            );
+            return;
+
+        } catch (MalformedJwtException e) {
+
+            sendErrorResponse(
+                    response,
+                    "JWT token is malformed"
+            );
+            return;
+
+        } catch (SignatureException e) {
+
+            sendErrorResponse(
+                    response,
+                    "JWT signature is invalid"
+            );
+            return;
+
+        } catch (JwtException e) {
+
+            sendErrorResponse(
+                    response,
+                    "Invalid JWT token"
+            );
             return;
         }
 
         filterChain.doFilter(request, response);
+    }
+    private void sendErrorResponse(
+            HttpServletResponse response,
+            String message)
+            throws IOException {
+
+        response.setStatus(
+                HttpServletResponse.SC_UNAUTHORIZED
+        );
+
+        response.setContentType("application/json");
+
+        response.getWriter().write("""
+            {
+                "status": 401,
+                "message": "%s"
+            }
+            """.formatted(message));
     }
 }

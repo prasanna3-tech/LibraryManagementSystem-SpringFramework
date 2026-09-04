@@ -66,6 +66,9 @@ public class AdminController {
 
         return ResponseEntity.ok(response);
     }
+    @PreAuthorize(
+            "hasRole('ADMIN')"
+    )
     @DeleteMapping("/{adminId}")
     public ResponseEntity<AdminResponseDto> removeAdmin(
             @PathVariable("adminId") int adminId) {
@@ -100,6 +103,9 @@ public class AdminController {
 
         return ResponseEntity.ok(response);
     }
+    @PreAuthorize(
+            "hasRole('ADMIN')"
+    )
     @GetMapping
     public ResponseEntity<List<AdminResponseDto>> getAllAdmins() {
 
